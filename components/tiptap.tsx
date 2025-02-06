@@ -43,13 +43,13 @@ function EditMenuBar() {
   );
 }
 
-const Tiptap = ({ content }: { content: string }) => {
+const Tiptap = ({ content, preview }: { content: string; preview: boolean }) => {
   const extensions = [StarterKit];
 
   return (
     <div className="p-4">
       <EditorProvider
-        slotBefore={<EditMenuBar />}
+        slotBefore={preview ? null : <EditMenuBar />}
         extensions={extensions}
         content={content}
       ></EditorProvider>
