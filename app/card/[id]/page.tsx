@@ -1,8 +1,10 @@
 import Card from "@/components/card";
-export default function Home() {
+import Tiptap from "@/components/tiptap";
+export default function CardDetails() {
   return (
     <div>
       <Card category="Birthday" name="Happy Birthday" />
+      <Tiptap />
     </div>
   );
 }
