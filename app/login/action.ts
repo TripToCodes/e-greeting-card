@@ -21,9 +21,12 @@ export async function handleForm(prevState: any, formData: FormData) {
     return {
       errors: [],
     };
+  } else {
+    return {
+      fieldErrors: {
+        email: ["Invalid email"],
+        password: ["Invalid password"],
+      },
+    };
   }
-
-  return {
-    errors: ["Invalid email or password"],
-  };
 }

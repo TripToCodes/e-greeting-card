@@ -69,10 +69,18 @@ export async function createAccount(prevState: any, formData: FormData) {
     console.error("No user ID found in response:", user);
     return { error: "Unexpected response from server." };
   }
-
-  const session = await getSession();
-  session.id = user.id;
-  await session.save();
-
-  redirect("/my-account");
+  if (response.ok) {
+    const session = await getSession();
+    session.id = user.id;
+    await session.save();
+    redirect("/my-account");
+  } else {
+    return {
+      fieldErrors: {
+        name: ["Invalid name"],
+        email: ["Invalid email"],
+        password: ["Invalid password"],
+      },
+    };
+  }
 }
