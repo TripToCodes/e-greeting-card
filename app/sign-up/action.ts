@@ -80,6 +80,7 @@ export async function createAccount(prevState: any, formData: FormData) {
         name: ["Invalid name"],
         email: ["Invalid email"],
         password: ["Invalid password"],
+        confirm_password: ["Passwords do not match"],
       },
     };
   }
