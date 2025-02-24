@@ -1,10 +1,8 @@
 "use server";
 
-import bcrypt from "bcrypt";
-import { PASSWORD_MIN_LENGTH, PASSWORD_REGEX, PASSWORD_REGEX_ERROR } from "@/lib/constants";
 import { z } from "zod";
-import { redirect } from "next/navigation";
-import getSession from "@/lib/session";
+// import { redirect } from "next/navigation";
+// import getSession from "@/lib/session";
 
 const checkPasswords = ({
   password,
@@ -24,8 +22,8 @@ const formSchema = z
       .toLowerCase()
       .trim(),
     email: z.string().email().toLowerCase(),
-    password: z.string().min(PASSWORD_MIN_LENGTH).regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
-    confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
+    password: z.string().min(8),
+    confirm_password: z.string().min(8),
   })
   .refine((data) => checkPasswords(data), {
     message: "Passwords do not match!",
@@ -33,55 +31,42 @@ const formSchema = z
 
 export async function createAccount(prevState: any, formData: FormData) {
   const data = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-    confirm_password: formData.get("confirm_password"),
+    name: formData.get("name") as string,
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    confirm_password: formData.get("confirm_password") as string,
   };
 
-  const result = await formSchema.spa(data);
+  const result = await formSchema.safeParseAsync(data);
+
   if (!result.success) {
     console.log(result.error.flatten());
     return result.error.flatten();
-  }
-
-  const hashedPassword = await bcrypt.hash(result.data.password, 12);
-
-  const response = await fetch("https://potato-j8w7.onrender.com/users/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: result.data.name,
-      email: result.data.email,
-      password: hashedPassword,
-    }),
-  });
-
-  if (!response.ok) {
-    console.error("Failed to register user:", await response.text());
-    return { error: "Registration failed. Please try again." };
-  }
-
-  const user = await response.json();
-  if (!user.id) {
-    console.error("No user ID found in response:", user);
-    return { error: "Unexpected response from server." };
-  }
-  if (response.ok) {
-    const session = await getSession();
-    session.id = user.id;
-    await session.save();
-    redirect("/my-account");
   } else {
-    return {
-      fieldErrors: {
-        name: ["Invalid name"],
-        email: ["Invalid email"],
-        password: ["Invalid password"],
-        confirm_password: ["Passwords do not match"],
-      },
-    };
+    const registerResponse = await fetch("https://potato-j8w7.onrender.com/users/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: result.data.name,
+        email: result.data.email,
+        password: result.data.password,
+      }),
+    });
+
+    console.log("registerResponse:", registerResponse);
   }
 }
+
+//     const userData = await registerResponse.json(); //! 여기부터 에러
+//     console.log("userData        ", userData);
+//     if (!userData.id) {
+//       return { error: "Unexpected response from server." };
+//     }
+
+//     const session = await getSession();
+//     console.log("session ID", session.id);
+//     session.id = userData.id;
+//     await session.save();
+//     redirect("/my-account");
+//   }
+// }
