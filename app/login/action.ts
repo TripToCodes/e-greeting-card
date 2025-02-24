@@ -1,5 +1,7 @@
 "use server";
 
+import { redirect } from "next/navigation";
+
 export async function handleForm(prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -15,12 +17,8 @@ export async function handleForm(prevState: any, formData: FormData) {
     body: JSON.stringify({ email, password }),
   });
 
-  console.log("response:::", response);
-  //* 여기서 response에 success 관련해서 뭘 확인할지 모르겠어요! 코파일럿은 아래와 같이 작성했는데, 저희는 이게 없는 듯해요! body로 확인해야할까요?
-  if (response.ok) {
-    return {
-      errors: [],
-    };
+  if (response) {
+    redirect("/my-account");
   } else {
     return {
       fieldErrors: {
